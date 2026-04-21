@@ -29,9 +29,9 @@ def load_data_from_google(sheet_name):
 # Ensure these match your Tab names exactly
 schemes = [
     "Cattle Rearing", "Aromatic Plants", "Seed Production", "Backyard Poultry",
-    "Goat Rearing", "Quail Rearing", "Spices Production", "Floriculture",
-    "Fisheries", "Millet Enterprise", "Value Addition", "Nursery",
-    "Organic Farming", "Cold Storage", "Custom Hiring", "Marketing Hub", "Dairy"
+    "Goat Rearing", "Quail Rearing", "Spices Cluster", "Cut Flower Cluster",
+    "Vegetable Cluster", "Traditional Paddy", "Solar Dryer", "Mushroom Spawn Production",
+    "Groundnut Clusters", "Casuarina Cluster", "Incubators", "Vermiworm", "Sericulture"
 ]
 
 st.sidebar.title("TNSRLM Digital Mission")
