@@ -1,84 +1,138 @@
 import streamlit as st
 import pandas as pd
 
-# --- GOOGLE SHEETS CONFIG ---
-SHEET_ID = "1V2t-o7-6Y_Xh1Ne38DVpUfu_eUrUeJs4AeEuQ9edU6k"
-
-st.set_page_config(page_title="TNSRLM Cloud Tracker", layout="wide")
-
-def load_data_from_google(sheet_name):
-    encoded_name = sheet_name.replace(" ", "%20")
-    url = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/gviz/tq?tqx=out:csv&sheet={encoded_name}"
-    data = pd.read_csv(url)
+# 1. THE MASTER LIST - Add all your 17 GIDs here as you create them
+SCHEME_CONFIG = {
+    "Backyard Poultry": {
+        "gid": "1866299669",
+        "highlights": ["Chicks Procured", "Chicks Survived", "Income"]
+    },
+    "Goat Rearing": {
+        "gid": "1734327599",
+        "highlights": ["Muzzle App", "Premium paid", "Fund released"]
+    },
     
-    # SAFETY: Convert columns to numeric, turning errors like "NA" into 0
-    cols_to_fix = ['Target_Units', 'Achieved_Units', 'Budget_Lakhs', 'Expenditure_Lakhs']
-    for col in cols_to_fix:
-        if col in data.columns:
-            data[col] = pd.to_numeric(data[col], errors='coerce').fillna(0)
-    
-    # Repeat for Income columns if they exist
-    if 'Target_Income' in data.columns:
-        data['Target_Income'] = pd.to_numeric(data['Target_Income'], errors='coerce').fillna(0)
-    if 'Actual_Income' in data.columns:
-        data['Actual_Income'] = pd.to_numeric(data['Actual_Income'], errors='coerce').fillna(0)
-        
+    "Quail Rearing": {
+        "gid": "920866231",
+        "highlights": ["Chicks Procured", "Quails sold", "Income", "Incubator Procured" ]
+    },
+    "Cattle Rearing": {
+        "gid": "1651367216",
+        "highlights": ["Muzzle App", "Premium paid", "Milk Sold", "Income", "Proposal", "Machinery" ]
+    },
+    "Sericulture": {
+        "gid": "491914730",
+        "highlights": ["Cocoon sold", "Income" ]
+    },
+    "Vermiworm": {
+        "gid": "355607944",
+        "highlights": ["Income" ]
+    },
+    "Incubators": {
+        "gid": "2070816617",
+        "highlights": ["Chicks hatched", "Income" ]
+    },
+    "Aromatic Plants": {
+        "gid": "109971273",
+        "highlights": ["machinery", "Income", "Fund released" ]
+    },
+    "Casuarina Cluster": {
+        "gid": "1577560532",
+        "highlights": ["Profile submitted", "UC Submitted" ]
+    },
+    "Mushroom Spawn": {
+        "gid": "52247309",
+        "highlights": ["Machineries", "Machinery Installed", "Production Started", "Income" ]
+    },
+    "Solar Dryer": {
+        "gid": "2082147746",
+        "highlights": ["Clusters procured", "Fund release", "Produce dried", "Income" ]
+    },
+    "Groundnut Clusters": {
+        "gid": "1376425211",
+        "highlights": ["machinery", "Value addition", "Income", "Fund release", "to Cluster", "Beneficiaries" ]
+    },
+    "Spices Cluster": {
+        "gid": "34261868",
+        "highlights": ["Machinery procured", "Income" ]
+    },
+    "Seed Production": {
+        "gid": "1343554782",
+        "highlights": ["harvesting", "TANSEDA", "Income" ]
+    },
+    "Cut Flower": {
+        "gid": "251319955",
+        "highlights": ["Poly houses", "Micro Irrigation", "planting", "Fund released" ]
+    },
+     "Vegetable Cluster": {
+        "gid": "1677063468",
+        "highlights": ["Income", "procured machinery", "Fund released" ]
+    },
+    "Traditional Paddy": {
+        "gid": "633846517",
+        "highlights": ["Income", "proposal", "procured machinery" ]
+    },# Add your other 15 schemes here following the same format
+    # "Milk Processing": {"gid": "GID_NUMBER", "highlights": ["Liters", "Fat", "Value"]},
+}
+
+st.set_page_config(page_title="TNSRLM Multi-Scheme Dashboard", layout="wide")
+
+# This function ensures we get fresh data for the specific tab only
+@st.cache_data(ttl=60) # Refreshes every minute
+def load_tab_data(gid):
+    SHEET_ID = '1V2t-o7-6Y_Xh1Ne38DVpUfu_eUrUeJs4AeEuQ9edU6k'
+    url = f'https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv&gid={gid}'
+    # We use keep_default_na=False to prevent 'nan' from appearing
+    data = pd.read_csv(url, keep_default_na=False)
     return data
 
-# --- SCHEMES ---
-# Ensure these match your Tab names exactly
-schemes = [
-    "Cattle Rearing", "Aromatic Plants", "Seed Production", "Backyard Poultry",
-    "Goat Rearing", "Quail Rearing", "Spices Cluster", "Cut Flower Cluster",
-    "Vegetable Cluster", "Traditional Paddy", "Solar Dryer", "Mushroom Spawn Production",
-    "Groundnut Clusters", "Casuarina Cluster", "Incubators", "Vermiworm", "Sericulture"
-]
-
-st.sidebar.title("TNSRLM Digital Mission")
-selected_scheme = st.sidebar.selectbox("Select Livelihood Cluster", schemes)
+# --- SIDEBAR ---
+st.sidebar.header("📋 MIS Filter Options")
+selected_scheme = st.sidebar.selectbox("1. Select Scheme", list(SCHEME_CONFIG.keys()))
 
 try:
-    df = load_data_from_google(selected_scheme)
-    
-    if 'District' in df.columns:
-        districts = sorted(df['District'].unique())
-        selected_dist = st.sidebar.selectbox("Select District", districts)
-        
-        row = df[df['District'] == selected_dist].iloc[0]
+    # Load ONLY the data for the selected scheme tab
+    conf = SCHEME_CONFIG[selected_scheme]
+    df = load_tab_data(conf['gid'])
 
-        st.title(f"📈 {selected_scheme} Progress")
-        st.info(f"Viewing live cloud data for {selected_dist}")
+    # Find District Column (Smart Finder)
+    dist_col = next((c for c in df.columns if 'District' in c), None)
 
-        # --- PROGRESS METRICS ---
-        col1, col2, col3 = st.columns(3)
+    if dist_col:
+        # Clean the list of Districts
+        dist_list = sorted([str(x).strip() for x in df[dist_col].unique() if str(x).strip() not in ['', '0', 'Select District']])
+        selected_district = st.sidebar.selectbox("2. Select District", dist_list)
         
-        t, a = row['Target_Units'], row['Achieved_Units']
-        b, e = row['Budget_Lakhs'], row['Expenditure_Lakhs']
+        # FILTER: This ensures the table ONLY shows the specific District for this specific Scheme
+        final_df = df[df[dist_col].astype(str).str.strip() == selected_district]
 
-        phys_p = (a / t * 100) if t > 0 else 0
-        col1.metric("Physical Achievement", f"{int(a)} / {int(t)}", f"{phys_p:.1f}%")
-        
-        fin_p = (e / b * 100) if b > 0 else 0
-        col2.metric("Financial Expenditure", f"Rs.{e:.2f} L", f"of Rs.{b:.2f} L")
-        
-        col3.metric("Budget Utilization", f"{fin_p:.1f}%")
+        # --- DASHBOARD DISPLAY ---
+        st.title(f"📊 {selected_scheme}")
+        st.info(f"Viewing abstract for: **{selected_district}**")
 
-        # --- INCOME TRACKER ---
-        if 'Target_Income' in df.columns and 'Actual_Income' in df.columns:
-            st.divider()
-            st.subheader("💰 Monthly Income Generation")
-            inc1, inc2, inc3 = st.columns(3)
-            ti, ai = row['Target_Income'], row['Actual_Income']
-            inc_p = (ai / ti * 100) if ti > 0 else 0
-            inc1.metric("Income Target", f"Rs.{ti:.2f} L")
-            inc2.metric("Income Realized", f"Rs.{ai:.2f} L")
-            inc3.metric("Achievement %", f"{inc_p:.1f}%")
+        # --- HIGHLIGHT CARDS ---
+        st.subheader(f"📍 Key Performance Indicators")
+        metrics = st.columns(3)
         
+        for i, keyword in enumerate(conf['highlights']):
+            with metrics[i % 3]:
+                # Find the column that contains the keyword
+                col_name = next((c for c in final_df.columns if keyword.lower() in c.lower()), None)
+                if col_name and not final_df.empty:
+                    val = final_df[col_name].iloc[0]
+                    st.metric(label=col_name, value=val)
+                else:
+                    st.metric(label=keyword, value="0")
+
         st.divider()
-        st.write(f"### State-wide Comparison: {selected_scheme}")
-        st.dataframe(df, use_container_width=True, hide_index=True)
+
+        # --- FULL SCHEME TABLE ---
+        st.subheader(f"📑 Complete {selected_scheme} Data: {selected_district}")
+        # We display the filtered data which is guaranteed to be from the selected tab
+        st.dataframe(final_df, use_container_width=True)
+
     else:
-        st.error("Column 'District' not found. Please check tab headers.")
+        st.error(f"The tab for {selected_scheme} does not have a 'District' column.")
 
 except Exception as e:
-    st.error(f"Error: {e}")
+    st.error(f"Connection Error: {e}")
