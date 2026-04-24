@@ -5,36 +5,36 @@ import pandas as pd
 SCHEME_CONFIG = {
     "Backyard Poultry": {
         "gid": "1866299669",
-        "highlights": ["Chicks Procured", "Chicks Survived", "Income"]
+        "highlights": ["Chicks procured", "Total chicks survived", "Income during the month"]
     },
     "Goat Rearing": {
-        "gid": "1734327599",
-        "highlights": ["Muzzle App", "Premium paid", "Fund released"]
+        "gid": "1747779727",
+        "highlights": ["Total Goats captured in Muzzle App", "Premium paid Goats Total"]
     },
     
     "Quail Rearing": {
         "gid": "920866231",
-        "highlights": ["Chicks Procured", "Quails sold", "Income", "Incubator Procured" ]
+        "highlights": ["Quail chicks procured Total", "Quails sold Total", "Income during the month", "Incubator Procured Total" ]
     },
     "Cattle Rearing": {
         "gid": "1651367216",
-        "highlights": ["Muzzle App", "Premium paid", "Milk Sold", "Income", "Proposal", "Machinery" ]
+        "highlights": ["Total Cows captured in Muzzle App", "Premium paid Cows Total", "Quantity of Milk Sold (in Lit) Total", "Income (in Rs.) during the month", "Clusters submitted proposal Total", "Clusters Procured Value addition Machinary Total" ]
     },
     "Sericulture": {
         "gid": "491914730",
-        "highlights": ["Cocoon sold", "Income" ]
+        "highlights": ["Cocoon sold (Kg) Total", "Income during the month" ]
     },
     "Vermiworm": {
         "gid": "355607944",
-        "highlights": ["Income" ]
+        "highlights": ["Income during the month" ]
     },
     "Incubators": {
         "gid": "2070816617",
-        "highlights": ["Chicks hatched", "Income" ]
+        "highlights": ["Chicks hatched and sold Total", "Target Income", "Income during the month" ]
     },
     "Aromatic Plants": {
         "gid": "109971273",
-        "highlights": ["machinery", "Income", "Fund released" ]
+        "highlights": ["procured Value addition machinery Total", "Target Income", "Income during the month" ]
     },
     "Casuarina Cluster": {
         "gid": "1577560532",
@@ -42,7 +42,7 @@ SCHEME_CONFIG = {
     },
     "Mushroom Spawn": {
         "gid": "52247309",
-        "highlights": ["Machineries", "Machinery Installed", "Production Started", "Income" ]
+        "highlights": ["Machineries Procurement completed", "Machinery Installed", "Production Started", "Target Income", "Income during the month" ]
     },
     "Solar Dryer": {
         "gid": "2082147746",
