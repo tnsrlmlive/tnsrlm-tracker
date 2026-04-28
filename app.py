@@ -5,7 +5,7 @@ import pandas as pd
 SCHEME_CONFIG = {
     "Backyard Poultry": {
         "gid": "1866299669",
-        "highlights": ["Chicks procured", "Total chicks survived", "Target Income", "Income during the month"]
+        "highlights": ["Chicks procured", "Total chicks survived", "Chicks Survived During the month", "Target Income", "Income during the month"]
     },
     "Goat Rearing": {
         "gid": "1747779727",
